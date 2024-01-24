@@ -29,7 +29,7 @@ def bandJoin(filePath, k):
     answer = 0
     print("Calculating result...")
     for i in range(581012):
-        j = 0
+        j = 1
         record = 0 # 1 is the record itself
         while i+j < 581012 and np.abs(dataInUse[i] - dataInUse[i+j]) <= k:
             j += 1
