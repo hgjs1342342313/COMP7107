@@ -1,6 +1,7 @@
 import numpy as np
 # Navigate to src file, and the filePath should be correct
 filePath = "../data/covtype.data"
+#filePath = "../data/test.data"
 
 # Create a 2D array to store data
 # data = np.zeros((581012, 55))
@@ -48,7 +49,7 @@ def bandJoin(filePath, k):
     print("Scanning Data for All Values...")
     # valueSet = {}
     valueCount = {}
-    for i in range(581012):
+    for i in range(len(dataInUse)):
         if dataInUse[i] in valueCount:
             valueCount[dataInUse[i]] += 1
         else:
@@ -60,13 +61,15 @@ def bandJoin(filePath, k):
     print("Calculating result...")
     # First, turn the dictionary into a list
     values = list(valueCount.keys())
+    # print(valueCount)
     result = 0
     for i in range(len(values)):
         n = valueCount[values[i]]-1
-        result += n*(n-1)/2
+        m = valueCount[values[i]]
+        result += (1+n)*n/2
         j = 1
-        while i+j < len(valueCount) and np.abs(dataInUse[i] - dataInUse[i+j]) <= k:
-            result += (valueCount[dataInUse[i]]-1) * valueCount[dataInUse[i+j]]
+        while i+j < len(values) and np.abs(values[i] - values[i+j]) <= k:
+            result += m*valueCount[values[i+j]]
             j += 1
     print("Calculating result - Finished")
     print("The result is: ")
