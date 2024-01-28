@@ -98,50 +98,75 @@ def bandJoin(filePath, k):
 
 
 
+# the similarity function: normalize data
+def normalize(filePath):
+    data = readData()
+    datalen = len(data)
+    datawid = len(data[0])
 
 
+    print("Normalizing data...")
+    # Normalizing data
+    for i in range(10):
+        maxcol = np.max(data[:, i])
+        mincol = np.min(data[:, i])
+        data[:, i] = (data[:, i] - mincol)/(maxcol - mincol)
+    print("Normalizing data - Finished")
+    return data
 
 
+def similarity(data):
+    print("data shape is: ", data.shape)
+    data = data[:, :-1]
+    collen = len(data[0])
+    print("The number of columns is: ", collen)
+    rowlen = len(data)
+    print("The number of rows is: ", rowlen)
+    minimumSimilarity = 1
+    maximumSimilarity = 0
+    averageSimilarity = 0
+    # similarityMatrix = np.zeros((rowlen, rowlen))
+    print("Calculating similarity...")
+    for i in range(rowlen):
+        for j in range(i+1, rowlen):
+            similarity = 0
+            delta = 0
+            for k in range(10):
+                di = np.abs(data[i][k] - data[j][k])
+                si = 1/(1+di)
+                delta += 1
+                similarity += si
+            for k in range(10, collen):
+                if data[i][k] == data[j][k] and data[i][k] == 1:
+                    similarity += 1
+                    delta += 1
+                if data[i][k] != data[j][k]:
+                    delta += 1
+            similarity = similarity/delta
+            averageSimilarity += similarity
+            minimumSimilarity = min(minimumSimilarity, similarity)
+            maximumSimilarity = max(maximumSimilarity, similarity)
+    averageSimilarity = averageSimilarity/(rowlen*(rowlen-1)/2)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    print("Calculating similarity - Finished")
+    print("The minimum similarity is: ")
+    print(minimumSimilarity)
+    print("The maximum similarity is: ")
+    print(maximumSimilarity)
+    print("The average similarity is: ")
+    print(averageSimilarity)
+    return minimumSimilarity, maximumSimilarity, averageSimilarity
+    # return  minimumSimilarity, maximumSimilarity, averageSimilarity
+    
 
 
 
 
 
 print("This is the solution of assignment 1.")
-print("Please input a number to choose solution.")
+print("Please input a NUMBER to choose solution.")
 print("1. Band Join")
-# print("2. TBD ")
+print("2. The similarity function ")
 
 # Get input from user
 solutionIndex = input("Please input a number: ")
@@ -153,6 +178,37 @@ if solutionIndex == "1":
     k = input()
     k = int(k)
     bandJoin(filePath, k)
+
+elif solutionIndex == "2":
+    print("You are choosing The similarity function.")
+    data = normalize(filePath)
+    print("Please input a number to choose random saple from: 1. all data; 2. each type of the data")
+    x = input()
+    if x == "1":
+        # Random sample from all data
+        print("You are choosing random sample from all data.")
+        # Randomly sample 1000 data from dataset
+        np.random.shuffle(data)
+        selectedData = data[:1000]
+        similarity(selectedData)
+    elif x == "2":
+        for i in range(1,8):
+            print("You are choosing random sample from type ", i)
+            # Randomly sample 1000 data from dataset where type = i
+            typedata = data[data[:, 54] == i]
+            np.random.shuffle(typedata)
+            boundary = len(typedata)
+            if boundary < 1000:
+                print("The number of data is less than 1000, so we will use all data.")
+                selectedData = typedata
+            else:
+                print("The number of data is more than 1000, so we will sample 1000 datapoints.")
+                selectedData = typedata[:1000]
+            similarity(selectedData)
+    else:
+        print("Wrong input.")
+
+
 
 
 
