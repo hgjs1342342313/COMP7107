@@ -1,28 +1,11 @@
 import numpy as np
 # Navigate to src file, and the filePath should be correct
 filePath = "../data/covtype.data"
-#filePath = "../data/test.data"
-
-# Create a 2D array to store data
-# data = np.zeros((581012, 55))
-
-# def readData():
-#     # Read data from the file
-#     print("Reading data from file...")
-
-#     with open(filePath, "r") as f:
-#         for i in range(581012):
-#             line = f.readline()
-#             line = line.split(',')
-#             for j in range(55):
-#                 data[i][j] = line[j]
-#     print("Reading data - Finished")
 
 def readData():
     # Read data from the file
     print("Reading data from file...")
-
-    data = np.loadtxt(filePath, delimiter=',')  # 使用 NumPy 的 loadtxt() 函数加载数据
+    data = np.loadtxt(filePath, delimiter=',') 
     # print(data)
     print("Reading data - Finished")
     return data
@@ -74,28 +57,6 @@ def bandJoin(filePath, k):
     print("Calculating result - Finished")
     print("The result is: ")
     print(result)
-
-
-
-
-    # Simple solution
-    # print("Calculating result...")
-    # for i in range(581012):
-    #     j = 1
-    #     record = 0 # 1 is the record itself
-    #     while i+j < 581012 and np.abs(dataInUse[i] - dataInUse[i+j]) <= k:
-    #         j += 1
-    #         record += 1
-    #     # result.append(record)
-    #     answer += record
-    #     print(i)
-    # print("Calculating result - Finished")
-    # # print("The result is: ")
-    # # print(result)
-    # print("The sum of the result is: ")
-    # print(answer)
-    
-
 
 
 # the similarity function: normalize data
@@ -158,55 +119,59 @@ def similarity(data):
     return minimumSimilarity, maximumSimilarity, averageSimilarity
     # return  minimumSimilarity, maximumSimilarity, averageSimilarity
     
+def main():
+    print("This is the solution of assignment 1.")
+    print("Please input a NUMBER to choose solution.")
+    print("1. Band Join")
+    print("2. The similarity function ")
 
+    # Get input from user
+    solutionIndex = input("Please input a number: ")
 
+    # Call solution
+    if solutionIndex == "1":
+        print("You are choosing Band Join.")
+        print("It will take a integer as parameter, please input a integer.")
+        k = input()
+        k = int(k)
+        bandJoin(filePath, k)
 
-
-
-print("This is the solution of assignment 1.")
-print("Please input a NUMBER to choose solution.")
-print("1. Band Join")
-print("2. The similarity function ")
-
-# Get input from user
-solutionIndex = input("Please input a number: ")
-
-# Call solution
-if solutionIndex == "1":
-    print("You are choosing Band Join.")
-    print("It will take a integer as parameter, please input a integer.")
-    k = input()
-    k = int(k)
-    bandJoin(filePath, k)
-
-elif solutionIndex == "2":
-    print("You are choosing The similarity function.")
-    data = normalize(filePath)
-    print("Please input a number to choose random saple from: 1. all data; 2. each type of the data")
-    x = input()
-    if x == "1":
-        # Random sample from all data
-        print("You are choosing random sample from all data.")
-        # Randomly sample 1000 data from dataset
-        np.random.shuffle(data)
-        selectedData = data[:1000]
-        similarity(selectedData)
-    elif x == "2":
-        for i in range(1,8):
-            print("You are choosing random sample from type ", i)
-            # Randomly sample 1000 data from dataset where type = i
-            typedata = data[data[:, 54] == i]
-            np.random.shuffle(typedata)
-            boundary = len(typedata)
-            if boundary < 1000:
-                print("The number of data is less than 1000, so we will use all data.")
-                selectedData = typedata
-            else:
-                print("The number of data is more than 1000, so we will sample 1000 datapoints.")
-                selectedData = typedata[:1000]
+    elif solutionIndex == "2":
+        print("You are choosing The similarity function.")
+        data = normalize(filePath)
+        print("Please input a number to choose random saple from: 1. all data; 2. each type of the data")
+        x = input()
+        if x == "1":
+            # Random sample from all data
+            print("You are choosing random sample from all data.")
+            # Randomly sample 1000 data from dataset
+            np.random.shuffle(data)
+            selectedData = data[:1000]
             similarity(selectedData)
-    else:
-        print("Wrong input.")
+        elif x == "2":
+            foo = [] # The array to store answers
+            for i in range(1,8):
+                print("You are choosing random sample from type ", i)
+                # Randomly sample 1000 data from dataset where type = i
+                typedata = data[data[:, 54] == i]
+                np.random.shuffle(typedata)
+                boundary = len(typedata)
+                if boundary < 1000:
+                    print("The number of data is less than 1000, so we will use all data.")
+                    selectedData = typedata
+                else:
+                    print("The number of data is more than 1000, so we will sample 1000 datapoints.")
+                    selectedData = typedata[:1000]
+                mins, maxs, avgs = similarity(selectedData)
+                tmp = [mins, maxs, avgs]
+                foo.append(tmp)
+            for i in range(7):
+                print("Type ", i+1, " min similarity ", foo[i][0], " max similarity ", foo[i][1], " average similarity ", foo[i][2])
+        else:
+            print("Wrong input.")
+
+if __name__ == "__main__":
+    main()
 
 
 
