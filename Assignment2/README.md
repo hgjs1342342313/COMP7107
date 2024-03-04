@@ -10,7 +10,7 @@ The environment requirements are: python: 3.8, pandas 2.
 
 ### 2. Document of my programs
 
-I wrote the subtitles for the solution so that you can find the 3 tasks. 
+I wrote the subtitles for the solution so that you can find the 3 tasks.
 
 #### 2.1 Task 1: Index development
 
@@ -60,7 +60,7 @@ for grid in grid_count.itertuples():
 
 In task 2, we are required to implement a range_selection function to range query the points. Let's break down the function and see the details.
 
-First, for the function being more robustic, we are supposed to take the x_y min_max value from the dir file, and compute the interval for further localization. 
+First, for the function being more robustic, we are supposed to take the x_y min_max value from the dir file, and compute the interval for further localization.
 
 ```python
 firstline = file.readline()  # skip the first line
@@ -88,56 +88,14 @@ We have several units to evaluate the function. I computed the whole query and r
 
 In task 3, we are required to implement the nearest neighbor queries. In the first unit, I implement 2 distance function computing distance between the target and the grid or another point.
 
-Then, in the second grid, I use heapq to create priority queue. Firstly, I implement a function that can convert the point location to the grid labels. 
+Then, in the second grid, I use heapq to create priority queue. Firstly, I implement a function that can convert the point location to the grid labels.
 
 Then, here comes the nearest neighbor function.
 
-At the beginning, I set a priority queue called pq. Then, I use 2 set to mark the visited grids and points to avoid re-visiting. Giving a location within 2 axies( target_x, target_y), we firstly convert the point to the grid. Then, add the grid to the pq. 
+At the beginning, I set a priority queue called pq. Then, I use 2 set to mark the visited grids and points to avoid re-visiting. Giving a location within 2 axies( target_x, target_y), we firstly convert the point to the grid. Then, add the grid to the pq.
 
 Just like BFS, while pq is not empty, we pop out the first value. If the value is a grid, we put all the points in the grid into the pq, and put all the adjecent grids into the queue. If the value is a point, we yield(return) the location, and keep the status of the function for the next call.
 
 In the next unit, I set k = 3, x = 39.856138, and y = 116.42394. Then, I run the iterator function k times, to see the answer. The output is, this unit give 3 nearest points( you can see from the distance).
 
 Then, I also tried the nn function on a point in grid 1, and most of the answer are from grid (0, 0) and grid(1, 0). The output shows the function reasonable.
-
-### Results
-
-#### Results for question 1
-
-##### K = 0
-
-![1706594448800](image/README/1706594448800.png)
-
-##### K = 1
-
-![1706594484738](image/README/1706594484738.png)
-
-##### K = 2
-
-![1706594495681](image/README/1706594495681.png)
-
-##### K = 3
-
-![1706594504895](image/README/1706594504895.png)
-
-#### Result for question 2
-
-##### Similarity between all the data
-
-![1706594538336](image/README/1706594538336.png)
-
-##### Similarities between each type of the data
-
-![1706594560473](image/README/1706594560473.png)
-
-## Observations
-
-### Observations for Q1
-
-* When k is from 0 to 3, the answer is 1.99, 5.68, 9.37, 13.27 (* 10^8). We can see each time when k increase 1, there will be 4 * 10^8 more records.
-
-### Observations for Q2
-
-* From question 2, we could see the minimum similarity for all the data is exteremely smaller than each type. This is reasonable since data in one type should be more similar than each other rather than other types.
-* The maximum simialrity seems not very far from the specific types. This is also reasonable because we might choose some data from one type of data.
-* The average is slightly lower than those from each type of data. Even though the sample volume is high, which might let the difference not high, it is still lower than the similarity from one type.
