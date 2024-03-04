@@ -1,12 +1,12 @@
 ## Report of Assignment1
 
-Author: Zheming Kang; Date: Jan.30th
+Author: Zheming Kang; Date: Mar. 4th
 
 ### 1. Instructions to compiling and running codes
 
-There is only one file of my code. At the beginning of my code, there is a variable called filepath. ``filePath="../data/covtype.data"`` Here you can change the address of the covtype.data file or put the covtype.data into the data folder.
+The "Solution.ipynb" contains all my codes and comments. Please run the cells one by one, and you'll see the output under each cell. Please put the Solution.ipynb and the "Beijing_restaurant.txt" under the same folder so that the path can finds the text well. Also you can see the output of mine under the cells in the "Solution.ipynb" file.
 
-The environment requirements are: python: 3.8, numpy: 1.24.
+The environment requirements are: python: 3.8, pandas 2.
 
 ### 2. Document of my programs
 
@@ -16,7 +16,7 @@ At the beginning of my file, there was a function called readData(). This is the
 
 In the function named bandJoin(), I implemented an optimized band join function to calculate result.
 
-First, I sorted the first column of the data. 
+First, I sorted the first column of the data.
 
 ```python
 sorted_indices=np.argsort(data[:, 0])
@@ -34,7 +34,7 @@ for i in range(len(dataInUse)):
         valueCount[dataInUse[i]] = 1
 ```
 
-After that, we can make a reference and calculate them directly. 
+After that, we can make a reference and calculate them directly.
 
 First, turn the dictionary into a list. Since the data is sorted, and we read the data line by line, this dictionary is also ordered, which will lead to a ordered list.
 
@@ -59,7 +59,7 @@ Finally, we add the results together, and we'll get the correct answer.
 
 #### 2.2 Similarity
 
-I implemented 2 functions to answer question 2: normalize, and similarity. The normalize function reads the data, and normalize the first 10 columns by ``data[:, i] = (data[:, i] -mincol)/(maxcol-mincol)`` . The similarity function calculates the similarity between each pair of datapoints. 
+I implemented 2 functions to answer question 2: normalize, and similarity. The normalize function reads the data, and normalize the first 10 columns by ``data[:, i] = (data[:, i] -mincol)/(maxcol-mincol)`` . The similarity function calculates the similarity between each pair of datapoints.
 
 For the first 10 columns, the similarity is:
 
