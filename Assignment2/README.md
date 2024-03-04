@@ -56,48 +56,49 @@ for grid in grid_count.itertuples():
     i += 1
 ```
 
-#### 2.2 Similarity
+#### 2.2 Task 2: range selection queries
 
-I implemented 2 functions to answer question 2: normalize, and similarity. The normalize function reads the data, and normalize the first 10 columns by ``data[:, i] = (data[:, i] -mincol)/(maxcol-mincol)`` . The similarity function calculates the similarity between each pair of datapoints.
+In task 2, we are required to implement a range_selection function to range query the points. Let's break down the function and see the details.
 
-For the first 10 columns, the similarity is:
-
-```python
-for k in range(10):
-    di = np.abs(data[i][k] - data[j][k])
-    si = 1/(1+di)
-    delta += 1
-    similarity += si
-```
-
-and for the next several columns, the similarity is:
+First, for the function being more robustic, we are supposed to take the x_y min_max value from the dir file, and compute the interval for further localization. 
 
 ```python
-for k in range(10, collen):
-    if data[i][k] == data[j][k] and data[i][k] == 1:
-    	similarity += 1
-    	delta += 1
-    if data[i][k] != data[j][k]:
-    	delta += 1
+firstline = file.readline()  # skip the first line
+x_min, x_max, y_min, y_max = firstline.split()
+x_max = float(x_max)
+x_min = float(x_min)
+y_max = float(y_max)
+y_min = float(y_min)
+x_interval = (x_max - x_min) / 10
+y_interval = (y_max - y_min) / 10
 ```
 
-which follows the idea from our lecture slides.
-
-After calculating the sum similarity of one pair of data points, we still need to let the sum divided by delta, to get the pair similarity. We add the result to averageSimilarity and update the max, min values. After the calculation of all the pairs of records, we calculate the average similarity by ``averageSimilarity/(rowlen*(rowlen-1)/2)``
-
-The following is the sample codes:
+Then, we read the file line by line. If the grid fits the requirement, i.e. is entirely covered by the range, we add add all the data points to the result. If there is only one axis fits the requirement, we search for all the points in the grid, and see if they can be added into the result list. Since python will ignore the '\'\n" character, we need to accumulate the count value to find the correct offset.
 
 ```python
-... For each pairs of records:
-	similarity = similarity/delta
-	averageSimilarity += similarity
-	minimumSimilarity = min(minimumSimilarity, similarity)
-	maximumSimilarity = max(maximumSimilarity, similarity)
-# After all pairs are done
-averageSimilarity = averageSimilarity/(rowlen*(rowlen-1)/2)
+if the grid is covered by the range:
+	add all the points
+elif the grid is partically covered:
+	find all the points and add the proper ones
 ```
 
-Finally, I implemented a main function to help user select the functions they are looking for. For question2, you can choose "1" to select the similarity for all the data, or choose "2" to see the similarities from each types of data.
+We have several units to evaluate the function. I computed the whole query and range query. For the whole query, the answer is equal to the total sum, for the range query, the answer is equal to the simple query. (The answer compares the number of results)
+
+#### 2.3 Task3: nearest neighbor queries
+
+In task 3, we are required to implement the nearest neighbor queries. In the first unit, I implement 2 distance function computing distance between the target and the grid or another point.
+
+Then, in the second grid, I use heapq to create priority queue. Firstly, I implement a function that can convert the point location to the grid labels. 
+
+Then, here comes the nearest neighbor function.
+
+At the beginning, I set a priority queue called pq. Then, I use 2 set to mark the visited grids and points to avoid re-visiting. Giving a location within 2 axies( target_x, target_y), we firstly convert the point to the grid. Then, add the grid to the pq. 
+
+Just like BFS, while pq is not empty, we pop out the first value. If the value is a grid, we put all the points in the grid into the pq, and put all the adjecent grids into the queue. If the value is a point, we yield(return) the location, and keep the status of the function for the next call.
+
+In the next unit, I set k = 3, x = 39.856138, and y = 116.42394. Then, I run the iterator function k times, to see the answer. The output is, this unit give 3 nearest points( you can see from the distance).
+
+Then, I also tried the nn function on a point in grid 1, and most of the answer are from grid (0, 0) and grid(1, 0). The output shows the function reasonable.
 
 ### Results
 
