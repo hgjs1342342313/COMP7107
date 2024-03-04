@@ -10,52 +10,51 @@ The environment requirements are: python: 3.8, pandas 2.
 
 ### 2. Document of my programs
 
-At the beginning of my file, there was a function called readData(). This is the function that we used to read the covtype.data file from our disk, and store the data in the memory. I used np.loadtxt function to store the data in a numpy 2D array.
+I wrote the subtitles for the solution so that you can find the 3 tasks. 
 
-#### 2.1 Band Join
+#### 2.1 Task 1: Index development
 
-In the function named bandJoin(), I implemented an optimized band join function to calculate result.
+In task one, we are required to generate 2 files: grid.grd and gird.dir, where the grd file describes the grids and the locations and the dir file describes the directions of the grids in the grd file. Here's the further explaination.
 
-First, I sorted the first column of the data.
+##### 2.1.1 Works for .grd file
 
-```python
-sorted_indices=np.argsort(data[:, 0])
-sorted_data=data[sorted_indices]
-```
-
-Then, I used a dictionary to count the number of each value in the first column of the data.
+First, I loaded the data by pandas.read_csv function and set the x, y, and id attributes.
 
 ```python
-valueCount = {}
-for i in range(len(dataInUse)):
-    if dataInUse[i] in valueCount:
-        valueCount[dataInUse[i]] += 1
-    else:
-        valueCount[dataInUse[i]] = 1
+filename = "Beijing_restaurants.txt"
+data = pd.read_csv(filename, header = None, skiprows = 1, delimiter=" ", names = ["x", "y"])
+data["id"] = range(1, len(data)+1)
 ```
 
-After that, we can make a reference and calculate them directly.
+Then, I get the maximum and minimum values and compute the intervals for further assignment. I assign the grid by "(x-x_min)//10" to get the id of x axis, and do the same thing on y axis. After that, we can sort them by x and y grid label. Finally, we write the informatin of the data points with .6f format to remain the format.
 
-First, turn the dictionary into a list. Since the data is sorted, and we read the data line by line, this dictionary is also ordered, which will lead to a ordered list.
+##### 2.1.2 Works for .dir file
 
-Then, we read them one by one. The number m represents how many records are there in the data with the value equals to what we are considering. n is m-1.
-
-For a value, there must be (1+n)*n/2 records with the different = 0. This is simple mathematics. Then, for i+1, i+2,... if the differenct is smaller than k, we know there are m * t records also fits the requirement, where t is the number of how many records are there in the data with the value equals to i+j th element.
+For the dir file, we are required to compute the offset of the data points in characters. Since the python will ignore the '\'\n" character, we need to add one offset manually. By using the following function, we can compute the offsets correctly.
 
 ```python
-values = list(valueCount.keys())
-result = 0
-for i in range(len(values)):
-    n = valueCount[values[i]]-1
-    m = valueCount[values[i]]
-    result += (1+n)*n/2
-    j = 1
-    while i+j < len(values) and np.abs(values[i] - values[i+j]) <= k:
-        result += m*valueCount[values[i+j]]
-        j += 1
+def get_line_offset(file_path, n):
+    with open(file_path, 'r') as file:
+        offset = 0
+        line_number = 0
+        for line in file:
+            if line_number == n:
+                return offset
+            offset += len(line)
+            line_number += 1
+	return -1
 ```
 
-Finally, we add the results together, and we'll get the correct answer.
+Finally, we can write the information into the dir file. I take an index i to get the value since all the variables are sorted.
+
+```python
+grid_dir = open("grid.dir", "w")
+grid_dir.write(str(x_min) + " " + str(x_max) + " " + str(y_min) + " " + str(y_max) + "\n")
+i = 0
+for grid in grid_count.itertuples():
+    grid_dir.write(str(grid.x_grid) + " " + str(grid.y_grid) + " "+str(offsets[i]) +" "+ str(grid.count) + "\n")
+    i += 1
+```
 
 #### 2.2 Similarity
 
