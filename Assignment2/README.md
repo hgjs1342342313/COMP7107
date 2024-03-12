@@ -1,143 +1,101 @@
 ## Report of Assignment1
 
-Author: Zheming Kang; Date: Jan.30th
+Author: Zheming Kang; Date: Mar. 4th
 
 ### 1. Instructions to compiling and running codes
 
-There is only one file of my code. At the beginning of my code, there is a variable called filepath. ``filePath="../data/covtype.data"`` Here you can change the address of the covtype.data file or put the covtype.data into the data folder.
+The "Solution.ipynb" contains all my codes and comments. Please run the cells one by one, and you'll see the output under each cell. Please put the Solution.ipynb and the "Beijing_restaurant.txt" under the same folder so that the path can finds the text well. Also you can see the output of mine under the cells in the "Solution.ipynb" file.
 
-The environment requirements are: python: 3.8, numpy: 1.24.
+The environment requirements are: python: 3.8, pandas 2.
 
 ### 2. Document of my programs
 
-At the beginning of my file, there was a function called readData(). This is the function that we used to read the covtype.data file from our disk, and store the data in the memory. I used np.loadtxt function to store the data in a numpy 2D array.
+I wrote the subtitles for the solution so that you can find the 3 tasks.
 
-#### 2.1 Band Join
+#### 2.1 Task 1: Index development
 
-In the function named bandJoin(), I implemented an optimized band join function to calculate result.
+In task one, we are required to generate 2 files: grid.grd and gird.dir, where the grd file describes the grids and the locations and the dir file describes the directions of the grids in the grd file. Here's the further explaination.
 
-First, I sorted the first column of the data. 
+##### 2.1.1 Works for .grd file
 
-```python
-sorted_indices=np.argsort(data[:, 0])
-sorted_data=data[sorted_indices]
-```
-
-Then, I used a dictionary to count the number of each value in the first column of the data.
+First, I loaded the data by pandas.read_csv function and set the x, y, and id attributes.
 
 ```python
-valueCount = {}
-for i in range(len(dataInUse)):
-    if dataInUse[i] in valueCount:
-        valueCount[dataInUse[i]] += 1
-    else:
-        valueCount[dataInUse[i]] = 1
+filename = "Beijing_restaurants.txt"
+data = pd.read_csv(filename, header = None, skiprows = 1, delimiter=" ", names = ["x", "y"])
+data["id"] = range(1, len(data)+1)
 ```
 
-After that, we can make a reference and calculate them directly. 
+Then, I get the maximum and minimum values and compute the intervals for further assignment. I assign the grid by "(x-x_min)//10" to get the id of x axis, and do the same thing on y axis. After that, we can sort them by x and y grid label. Finally, we write the informatin of the data points with .6f format to remain the format.
 
-First, turn the dictionary into a list. Since the data is sorted, and we read the data line by line, this dictionary is also ordered, which will lead to a ordered list.
+##### 2.1.2 Works for .dir file
 
-Then, we read them one by one. The number m represents how many records are there in the data with the value equals to what we are considering. n is m-1.
-
-For a value, there must be (1+n)*n/2 records with the different = 0. This is simple mathematics. Then, for i+1, i+2,... if the differenct is smaller than k, we know there are m * t records also fits the requirement, where t is the number of how many records are there in the data with the value equals to i+j th element.
+For the dir file, we are required to compute the offset of the data points in characters. Since the python will ignore the '\'\n" character, we need to add one offset manually. By using the following function, we can compute the offsets correctly.
 
 ```python
-values = list(valueCount.keys())
-result = 0
-for i in range(len(values)):
-    n = valueCount[values[i]]-1
-    m = valueCount[values[i]]
-    result += (1+n)*n/2
-    j = 1
-    while i+j < len(values) and np.abs(values[i] - values[i+j]) <= k:
-        result += m*valueCount[values[i+j]]
-        j += 1
+def get_line_offset(file_path, n):
+    with open(file_path, 'r') as file:
+        offset = 0
+        line_number = 0
+        for line in file:
+            if line_number == n:
+                return offset
+            offset += len(line)
+            line_number += 1
+	return -1
 ```
 
-Finally, we add the results together, and we'll get the correct answer.
-
-#### 2.2 Similarity
-
-I implemented 2 functions to answer question 2: normalize, and similarity. The normalize function reads the data, and normalize the first 10 columns by ``data[:, i] = (data[:, i] -mincol)/(maxcol-mincol)`` . The similarity function calculates the similarity between each pair of datapoints. 
-
-For the first 10 columns, the similarity is:
+Finally, we can write the information into the dir file. I take an index i to get the value since all the variables are sorted.
 
 ```python
-for k in range(10):
-    di = np.abs(data[i][k] - data[j][k])
-    si = 1/(1+di)
-    delta += 1
-    similarity += si
+grid_dir = open("grid.dir", "w")
+grid_dir.write(str(x_min) + " " + str(x_max) + " " + str(y_min) + " " + str(y_max) + "\n")
+i = 0
+for grid in grid_count.itertuples():
+    grid_dir.write(str(grid.x_grid) + " " + str(grid.y_grid) + " "+str(offsets[i]) +" "+ str(grid.count) + "\n")
+    i += 1
 ```
 
-and for the next several columns, the similarity is:
+#### 2.2 Task 2: range selection queries
+
+In task 2, we are required to implement a range_selection function to range query the points. Let's break down the function and see the details.
+
+First, for the function being more robustic, we are supposed to take the x_y min_max value from the dir file, and compute the interval for further localization.
 
 ```python
-for k in range(10, collen):
-    if data[i][k] == data[j][k] and data[i][k] == 1:
-    	similarity += 1
-    	delta += 1
-    if data[i][k] != data[j][k]:
-    	delta += 1
+firstline = file.readline()  # skip the first line
+x_min, x_max, y_min, y_max = firstline.split()
+x_max = float(x_max)
+x_min = float(x_min)
+y_max = float(y_max)
+y_min = float(y_min)
+x_interval = (x_max - x_min) / 10
+y_interval = (y_max - y_min) / 10
 ```
 
-which follows the idea from our lecture slides.
-
-After calculating the sum similarity of one pair of data points, we still need to let the sum divided by delta, to get the pair similarity. We add the result to averageSimilarity and update the max, min values. After the calculation of all the pairs of records, we calculate the average similarity by ``averageSimilarity/(rowlen*(rowlen-1)/2)``
-
-The following is the sample codes:
+Then, we read the file line by line. If the grid fits the requirement, i.e. is entirely covered by the range, we add add all the data points to the result. If there is only one axis fits the requirement, we search for all the points in the grid, and see if they can be added into the result list. Since python will ignore the '\'\n" character, we need to accumulate the count value to find the correct offset.
 
 ```python
-... For each pairs of records:
-	similarity = similarity/delta
-	averageSimilarity += similarity
-	minimumSimilarity = min(minimumSimilarity, similarity)
-	maximumSimilarity = max(maximumSimilarity, similarity)
-# After all pairs are done
-averageSimilarity = averageSimilarity/(rowlen*(rowlen-1)/2)
+if the grid is covered by the range:
+	add all the points
+elif the grid is partically covered:
+	find all the points and add the proper ones
 ```
 
-Finally, I implemented a main function to help user select the functions they are looking for. For question2, you can choose "1" to select the similarity for all the data, or choose "2" to see the similarities from each types of data.
+We have several units to evaluate the function. I computed the whole query and range query. For the whole query, the answer is equal to the total sum, for the range query, the answer is equal to the simple query. (The answer compares the number of results)
 
-### Results
+#### 2.3 Task3: nearest neighbor queries
 
-#### Results for question 1
+In task 3, we are required to implement the nearest neighbor queries. In the first unit, I implement 2 distance function computing distance between the target and the grid or another point.
 
-##### K = 0
+Then, in the second grid, I use heapq to create priority queue. Firstly, I implement a function that can convert the point location to the grid labels.
 
-![1706594448800](image/README/1706594448800.png)
+Then, here comes the nearest neighbor function.
 
-##### K = 1
+At the beginning, I set a priority queue called pq. Then, I use 2 set to mark the visited grids and points to avoid re-visiting. Giving a location within 2 axies( target_x, target_y), we firstly convert the point to the grid. Then, add the grid to the pq.
 
-![1706594484738](image/README/1706594484738.png)
+Just like BFS, while pq is not empty, we pop out the first value. If the value is a grid, we put all the points in the grid into the pq, and put all the adjecent grids into the queue. If the value is a point, we yield(return) the location, and keep the status of the function for the next call.
 
-##### K = 2
+In the next unit, I set k = 3, x = 39.856138, and y = 116.42394. Then, I run the iterator function k times, to see the answer. The output is, this unit give 3 nearest points( you can see from the distance).
 
-![1706594495681](image/README/1706594495681.png)
-
-##### K = 3
-
-![1706594504895](image/README/1706594504895.png)
-
-#### Result for question 2
-
-##### Similarity between all the data
-
-![1706594538336](image/README/1706594538336.png)
-
-##### Similarities between each type of the data
-
-![1706594560473](image/README/1706594560473.png)
-
-## Observations
-
-### Observations for Q1
-
-* When k is from 0 to 3, the answer is 1.99, 5.68, 9.37, 13.27 (* 10^8). We can see each time when k increase 1, there will be 4 * 10^8 more records.
-
-### Observations for Q2
-
-* From question 2, we could see the minimum similarity for all the data is exteremely smaller than each type. This is reasonable since data in one type should be more similar than each other rather than other types.
-* The maximum simialrity seems not very far from the specific types. This is also reasonable because we might choose some data from one type of data.
-* The average is slightly lower than those from each type of data. Even though the sample volume is high, which might let the difference not high, it is still lower than the similarity from one type.
+Then, I also tried the nn function on a point in grid 1, and most of the answer are from grid (0, 0) and grid(1, 0). The output shows the function reasonable.
