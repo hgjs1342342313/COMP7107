@@ -3,72 +3,71 @@ import heapq
 import datetime
 import argparse
 import pytz
-
-
-
-# 执行 Dijkstra 算法
-# 执行 Dijkstra 算法
 import sys
 
 def dijkstra(adjacency_list, source, target, tstart):
-    # 初始化距离字典和路径字典
+    # Initialize the distances and previous dictionary
     distances = {node: sys.maxsize for node in adjacency_list}
     previous = {node: None for node in adjacency_list}
     distances[source] = tstart
-    # 创建优先队列
+    # Create a priority queue, the first element is the source with distance tstart
     priority_queue = [(tstart, source)]
 
     while priority_queue:
-        # 从优先队列中取出具有最小距离的顶点
+        # First, we pop the node with the smallest distance
         current_distance, current_node = heapq.heappop(priority_queue)
 
-        # 如果已经访问过目标节点，可以提前退出
+        # If the current node is the target, we break the loop
         if current_node == target:
             break
 
-        # 遍历当前顶点的邻接顶点
+        # Visit all the neighbors of the current node
         for neighbor in adjacency_list[current_node]:
-            # 如果邻居没有出度且不是目标节点，跳过
+            # If the neihgbor do not have any path to the target, and the neighbor is not the target, we skip it
             if (neighbor[1] not in adjacency_list) and (neighbor[1] != target):
                 continue
+            # Here, the neighbor has a path to outside, we get the timestamp and the node
             neighbor_timestamp, neighbor_node = neighbor
 
-            # 判断是否满足时间顺序条件
+            # If the timestamp is not smaller than the current distance(current timestamp), we go one step to see if we can update a new distance
             if neighbor_timestamp >= current_distance:
                 new_distance = neighbor_timestamp
 
-                # 如果新距离小于已知距离，更新距离和路径
+                # If the new distance is smaller than the distance to the neighbor, we update the distance and previous
                 if new_distance < distances[neighbor_node]:
                     distances[neighbor_node] = new_distance
                     previous[neighbor_node] = current_node
                     heapq.heappush(priority_queue, (new_distance, neighbor_node))
 
-    # 如果找到了路径，从目标节点开始回溯并构建最短路径
+    # If we find the path, we reconstruct the path
     path = []
+
+    # If the distance to the target is valid:
     if distances[target] != sys.maxsize:
+        # Trace back the path with the link of previous
         node = target
         while node is not None:
             path.append(node)
             node = previous[node]
+        # Reverse the path
         path.reverse()
 
     return path, distances[target]
 
-# 主函数
+
 def main():
-    # 创建命令行参数解析器
     parser = argparse.ArgumentParser(description='Dijkstra Algorithm')
 
-    # 添加命令行参数
+    # Add command line arguments
     parser.add_argument('--filename', type=str, default='graph.tsv', help='Graph data filename')
     parser.add_argument('--source', type=str, default='source_subreddit', help='Source subreddit name')
     parser.add_argument('--target', type=str, default='target_subreddit', help='Target subreddit name')
     parser.add_argument('--tstart', type=str, default='2024-04-09 10:00:00', help='Start timestamp')
 
-    # 解析命令行参数
+    # Parse the arguments
     args = parser.parse_args()
 
-    # 从命令行参数获取输入
+    # Get the arguments
     filename = args.filename
     source = args.source
     target = args.target
@@ -84,7 +83,7 @@ def main():
     # print("tstart:", tstart)
     # read dict.tsv and make a dictionary
 
-    # 读取dict.tsv,将source和target转换为id
+    # Read dict.tsv and make a dictionary
     dictionary = {}
     with open('dict.tsv', 'r') as file:
         for line in file:
@@ -112,16 +111,15 @@ def main():
                 timestamp = int(timestamp)
                 if emotion == '1':
                     adjacency_list[source_id].append((timestamp, target_id))
-        # 输出adjecency_list第25行
-        # print(adjacency_list['36'])
+        
 
 
 
-    # 执行 Dijkstra 算法
+    # Run Dijkstra algorithm
     result = dijkstra(adjacency_list, source, target, tstart)
 
-    # 构建dictionary
-    # 读取dict.tsv
+    # Create a dictionary to store the mapping between the node and the subreddit name
+    # By reading the dict.tsv file
     dictionary = {}
 
     with open('dict.tsv', 'r') as file:
@@ -137,14 +135,16 @@ def main():
     
     path, distance = result
     if len(path) == 0:
-        print("无法找到满足条件的最短路径")
+        print("No path found")
     else:  
-        # 将distance转换为时间格式
+        # Change the distance to a datetime object
         distance = datetime.datetime.fromtimestamp(distance)
-        print("最短路径到达时间:", distance)
-        print("最短路径:")
-        for node in path:
-            print(dictionary[node], end=' -> ')
+        print("Arrival time: ", distance)
+        print("Path: ")
+        for i in range(len(path)):
+            print(dictionary[path[i]], end='')
+            if i != len(path) - 1:
+                print(' -> ', end='')
 
 
 if __name__ == '__main__':
